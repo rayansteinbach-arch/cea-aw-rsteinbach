@@ -1,18 +1,21 @@
-with source as (
-    select * from {{ source('adventure_works', 'sales_salesorderheader') }}
-),
+with 
+    source as (
+        select * 
+        from {{ source('adventure_works', 'sales_salesorderheader') }}
+    )
 
-renamed as (
-    select
-        salesorderid        as sales_order_id,
-        orderdate           as order_date,
-        customerid          as customer_id,
-        territoryid         as territory_id,
-        creditcardid        as credit_card_id,
-        shiptoaddressid     as ship_to_address_id,
-        status,
-        onlineorderflag     as online_order_flag
-    from source
-)
+    , renamed as (
+        select
+            cast(salesorderid       as bigint)      as sales_order_id,
+            cast(orderdate          as date)        as order_date,
+            cast(customerid         as bigint)      as customer_id,
+            cast(territoryid        as bigint)      as territory_id,
+            cast(creditcardid       as bigint)      as credit_card_id,
+            cast(shiptoaddressid    as bigint)      as ship_to_address_id,
+            cast(status             as smallint)    as status,
+            cast(onlineorderflag    as boolean)     as online_order_flag
+        from source
+    )
 
-select * from renamed
+select * 
+from renamed

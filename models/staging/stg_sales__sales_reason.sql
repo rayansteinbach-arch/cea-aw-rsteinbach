@@ -1,0 +1,16 @@
+with 
+    source as (
+        select * 
+        from {{ source('adventure_works', 'sales_salesreason') }}
+    )
+
+    , renamed as (
+        select
+            cast(salesreasonid as bigint) as sales_reason_id,
+            name                          as sales_reason_name,
+            reasontype                    as sales_reason_type
+        from source
+    )
+
+select * 
+from renamed

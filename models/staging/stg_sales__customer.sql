@@ -1,14 +1,17 @@
-with source as (
-    select * from {{ source('adventure_works', 'sales_customer') }}
-),
+with 
+    source as (
+        select * 
+        from {{ source('adventure_works', 'sales_customer') }}
+    )
 
-renamed as (
-    select
-        customerid      as customer_id,
-        personid        as person_id,
-        storeid         as store_id,
-        territoryid     as territory_id
-    from source
-)
+    , renamed as (
+        select            
+            cast(customerid  as bigint) as customer_id,
+            cast(personid    as bigint) as person_id,
+            cast(storeid     as bigint) as store_id,
+            cast(territoryid as bigint) as territory_id
+        from source
+    )
 
-select * from renamed
+select * 
+from renamed
