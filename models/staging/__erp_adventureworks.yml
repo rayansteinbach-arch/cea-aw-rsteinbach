@@ -1,0 +1,84 @@
+version: 2
+
+sources:
+  - name: adventure_works
+    database: fea_academy
+    schema: adventure_works
+    tables:
+      - name: sales_salesorderdetail
+        description: "Linhas de detalhe de cada pedido de venda"
+        columns:
+          - name: salesorderid
+            tests: [not_null]
+          - name: salesorderdetailid
+            tests: [not_null, unique]
+          - name: productid
+            tests: [not_null]
+
+      - name: sales_salesorderheader
+        description: "Cabeçalho dos pedidos de venda"
+        columns:
+          - name: salesorderid
+            tests: [not_null, unique]
+
+      - name: production_product
+        description: "Catálogo de produtos"
+        columns:
+          - name: productid
+            tests: [not_null, unique]
+
+      - name: sales_customer
+        description: "Clientes de vendas"
+        columns:
+          - name: customerid
+            tests: [not_null, unique]
+
+      - name: person_person
+        description: "Pessoas físicas (clientes, funcionários etc.)"
+        columns:
+          - name: businessentityid
+            tests: [not_null, unique]
+
+      - name: person_address
+        description: "Endereços"
+        columns:
+          - name: addressid
+            tests: [not_null, unique]
+
+      - name: person_stateprovince
+        description: "Estados e províncias"
+        columns:
+          - name: stateprovinceid
+            tests: [not_null, unique]
+
+      - name: person_countryregion
+        description: "Países e regiões"
+        columns:
+          - name: countryregioncode
+            tests: [not_null, unique]
+
+      - name: sales_salesterritory
+        description: "Territórios de vendas"
+        columns:
+          - name: territoryid
+            tests: [not_null, unique]
+
+      - name: sales_creditcard
+        description: "Cartões de crédito usados em pedidos"
+        columns:
+          - name: creditcardid
+            tests: [not_null, unique]
+
+      - name: sales_salesreason
+        description: "Motivos de venda"
+        columns:
+          - name: salesreasonid
+            tests: [not_null, unique]
+
+      - name: sales_salesorderheadersalesreason
+        description: "Tabela ponte entre pedidos e motivos de venda"
+        columns:
+          - name: salesorderid
+            tests: [not_null]
+          - name: salesreasonid
+            tests: [not_null]
