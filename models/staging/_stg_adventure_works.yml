@@ -1,0 +1,164 @@
+version: 2
+
+models:
+  - name: stg_person__address
+    description: "Endereços de entrega. Uma linha por endereço único."
+    columns:
+      - name: address_id
+        description: "PK — identificador único do endereço."
+        tests: [not_null, unique]
+      - name: address_line_1
+        tests: [not_null]
+      - name: city
+        tests: [not_null]
+      - name: postal_code
+        tests: [not_null]
+      - name: state_province_id
+        tests: [not_null]
+
+  - name: stg_person__country_region
+    description: "Países e regiões. Uma linha por código de país."
+    columns:
+      - name: country_region_code
+        description: "PK — código ISO do país."
+        tests: [not_null, unique]
+      - name: country_region_name
+        tests: [not_null]
+
+  - name: stg_person__person
+    description: "Pessoas físicas — clientes, funcionários etc."
+    columns:
+      - name: person_id
+        description: "PK — corresponde a businessentityid na fonte."
+        tests: [not_null, unique]
+      - name: person_type
+        tests: [not_null]
+      - name: first_name
+        tests: [not_null]
+      - name: last_name
+        tests: [not_null]
+
+  - name: stg_person__state_province
+    description: "Estados e províncias."
+    columns:
+      - name: state_province_id
+        description: "PK — identificador único do estado."
+        tests: [not_null, unique]
+      - name: state_province_code
+        tests: [not_null]
+      - name: state_province_name
+        tests: [not_null]
+      - name: country_region_code
+        tests: [not_null]
+      - name: territory_id
+        tests: [not_null]
+
+  - name: stg_production__product
+    description: "Catálogo de produtos fabricados/vendidos pela Adventure Works."
+    columns:
+      - name: product_id
+        description: "PK — identificador único do produto."
+        tests: [not_null, unique]
+      - name: product_name
+        tests: [not_null]
+      - name: product_number
+        tests: [not_null]
+
+  - name: stg_sales__credit_card
+    description: "Cartões de crédito usados em pedidos de venda."
+    columns:
+      - name: credit_card_id
+        description: "PK — identificador único do cartão."
+        tests: [not_null, unique]
+      - name: card_type
+        tests: [not_null]
+
+  - name: stg_sales__customer
+    description: "Clientes de vendas, com FK para pessoa e território."
+    columns:
+      - name: customer_id
+        description: "PK — identificador único do cliente."
+        tests: [not_null, unique]
+      - name: person_id
+        description: "FK para stg_person__person."
+        tests: [not_null]
+      - name: territory_id
+        tests: [not_null]
+
+  - name: stg_sales__sales_order_detail
+    description: >
+      Linhas de detalhe de pedido. Uma linha por produto dentro de um pedido.
+      Contém as métricas calculadas gross_revenue e revenue.
+    columns:
+      - name: sales_order_detail_id
+        description: "PK — identificador único da linha de detalhe."
+        tests: [not_null, unique]
+      - name: sales_order_id
+        description: "FK para stg_sales__sales_order_header."
+        tests: [not_null]
+      - name: product_id
+        description: "FK para stg_production__product."
+        tests: [not_null]
+      - name: order_qty
+        tests: [not_null]
+      - name: unit_price
+        tests: [not_null]
+      - name: unit_price_discount
+        tests: [not_null]
+      - name: gross_revenue
+        description: "unit_price * order_qty."
+        tests: [not_null]
+      - name: revenue
+        description: "unit_price * order_qty * (1 - unit_price_discount)."
+        tests: [not_null]
+
+  - name: stg_sales__sales_order_header
+    description: "Cabeçalho dos pedidos de venda. Uma linha por pedido."
+    columns:
+      - name: sales_order_id
+        description: "PK — identificador único do pedido."
+        tests: [not_null, unique]
+      - name: order_date
+        tests: [not_null]
+      - name: customer_id
+        description: "FK para stg_sales__customer."
+        tests: [not_null]
+      - name: territory_id
+        tests: [not_null]
+      - name: ship_to_address_id
+        description: "FK para stg_person__address."
+        tests: [not_null]
+      - name: online_order_flag
+        tests: [not_null]
+
+  - name: stg_sales__sales_order_header_sales_reason
+    description: "Tabela ponte entre pedidos e motivos de venda (relação N:N)."
+    columns:
+      - name: sales_order_id
+        tests: [not_null]
+      - name: sales_reason_id
+        tests: [not_null]
+
+  - name: stg_sales__sales_reason
+    description: "Motivos de venda disponíveis (Price, Promotion, Review etc.)."
+    columns:
+      - name: sales_reason_id
+        description: "PK — identificador único do motivo."
+        tests: [not_null, unique]
+      - name: sales_reason_name
+        tests: [not_null]
+      - name: sales_reason_type
+        tests: [not_null]
+
+  - name: stg_sales__sales_territory
+    description: "Territórios de vendas com agrupamento regional."
+    columns:
+      - name: territory_id
+        description: "PK — identificador único do território."
+        tests: [not_null, unique]
+      - name: territory_name
+        tests: [not_null]
+      - name: country_region_code
+        tests: [not_null]
+      - name: territory_group
+        tests: [not_null]

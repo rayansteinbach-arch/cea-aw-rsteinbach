@@ -1,0 +1,150 @@
+version: 2
+
+models:
+  - name: int_dimension_product
+    description: "Dimensão de produtos. Uma linha por produto."
+    columns:
+      - name: pk_product
+        description: "PK surrogate da dimensão — corresponde a product_id."
+        tests: [not_null, unique]
+      - name: product_name
+        tests: [not_null]
+      - name: product_number
+        tests: [not_null]
+
+  - name: int_dimension_customer
+    description: >
+      Dimensão de clientes enriquecida com nome completo a partir de person_person.
+      Uma linha por cliente.
+    columns:
+      - name: pk_customer
+        description: "PK surrogate da dimensão — corresponde a customer_id."
+        tests: [not_null, unique]
+      - name: first_name
+        tests: [not_null]
+      - name: last_name
+        tests: [not_null]
+      - name: full_name
+        description: "Concatenação de first_name, middle_name e last_name."
+        tests: [not_null]
+
+  - name: int_dimension_date
+    description: >
+      Dimensão de datas gerada via dbt_utils.date_spine de 2000-01-01 a 2050-12-31.
+      Uma linha por dia.
+    columns:
+      - name: pk_date
+        description: "PK surrogate sequencial da dimensão."
+        tests: [not_null, unique]
+      - name: full_date
+        description: "Data no formato yyyy-mm-dd. Usada como chave de join com a fato."
+        tests: [not_null, unique]
+      - name: year
+        tests: [not_null]
+      - name: day
+        tests: [not_null]
+      - name: quarter
+      - name: day_of_week
+        tests: [not_null]
+      - name: is_weekend
+        tests: [not_null]
+
+  - name: int_dimension_location
+    description: >
+      Dimensão de localização — endereço enriquecido com estado, país e território.
+      Uma linha por endereço único.
+    columns:
+      - name: pk_location
+        description: "PK surrogate da dimensão — corresponde a address_id."
+        tests: [not_null, unique]
+      - name: fk_territory
+        description: "FK para o território de vendas."
+        tests: [not_null]
+      - name: city
+        tests: [not_null]
+      - name: state_province_code
+        tests: [not_null]
+      - name: state_province_name
+        tests: [not_null]
+      - name: country_region_code
+        tests: [not_null]
+      - name: country_region_name
+        tests: [not_null]
+      - name: territory_group
+        tests: [not_null]
+
+  - name: int_dimension_credit_card
+    description: "Dimensão de tipos de cartão de crédito. Uma linha por cartão."
+    columns:
+      - name: pk_credit_card
+        description: "PK surrogate da dimensão — corresponde a credit_card_id."
+        tests: [not_null, unique]
+      - name: card_type
+        tests: [not_null]
+
+  - name: int_dimension_sales_reason
+    description: >
+      Bridge entre pedidos e motivos de venda (relação N:N).
+      Uma linha por combinação pedido × motivo.
+      Para cruzar com a fato, fazer join por fk_sales_order = sales_order_id.
+    columns:
+      - name: pk_sales_reason
+        description: "PK composta — concatenação de sales_order_id e sales_reason_id."
+        tests: [not_null, unique]
+      - name: fk_sales_order
+        description: "FK para int_fact_sales_order.sales_order_id."
+        tests: [not_null]
+      - name: fk_sales_reason
+        tests: [not_null]
+      - name: sales_reason_name
+        tests: [not_null]
+      - name: sales_reason_type
+        tests: [not_null]
+
+  - name: int_fact_sales_order
+    description: >
+      Tabela fato de vendas. Grão: uma linha por linha de detalhe de pedido (sales_order_detail_id).
+      Sem motivo de venda para evitar duplicidade — usar join com int_dimension_sales_reason
+      por sales_order_id para análises segmentadas por motivo.
+    columns:
+      - name: pk_sales_order
+        description: "PK da fato — corresponde a sales_order_detail_id."
+        tests: [not_null, unique]
+      - name: fk_product
+        description: "FK para int_dimension_product.pk_product."
+        tests:
+          - not_null
+      - name: fk_customer
+        description: "FK para int_dimension_customer.pk_customer."
+        tests:
+          - not_null
+      - name: fk_date
+        description: "FK para int_dimension_date.pk_date."
+        tests:
+          - not_null
+      - name: fk_location
+        description: "FK para int_dimension_location.pk_location."
+        tests:
+          - not_null
+      - name: fk_credit_card
+        description: "FK para int_dimension_credit_card.pk_credit_card. 'unknown' quando não há cartão."
+      - name: sales_order_id
+        description: "Chave de negócio do pedido. Usar para join com int_dimension_sales_reason."
+        tests: [not_null]
+      - name: order_qty
+        tests: [not_null]
+      - name: unit_price
+        tests: [not_null]
+      - name: unit_price_discount
+        tests: [not_null]
+      - name: gross_revenue
+        description: "unit_price * order_qty."
+        tests: [not_null]
+      - name: revenue
+        description: "unit_price * order_qty * (1 - unit_price_discount)."
+        tests: [not_null]
+      - name: status
+        tests:
+          - not_null
+      - name: online_order_flag
+        tests: [not_null]
