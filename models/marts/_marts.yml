@@ -1,0 +1,208 @@
+version: 2
+
+models:
+  - name: dim_customer
+    description: Dimensão de clientes com dados pessoais enriquecidos.
+    columns:
+      - name: pk_customer
+        description: Chave primária da dimensão cliente.
+        tests:
+          - unique
+          - not_null
+      - name: first_name
+        description: Primeiro nome do cliente.
+        tests:
+          - not_null
+      - name: middle_name
+        description: Nome do meio do cliente.
+      - name: last_name
+        description: Sobrenome do cliente.
+        tests:
+          - not_null
+      - name: full_name
+        description: Nome completo concatenado do cliente.
+        tests:
+          - not_null
+
+  - name: dim_product
+    description: Dimensão de produtos disponíveis para venda.
+    columns:
+      - name: pk_product
+        description: Chave primária da dimensão produto.
+        tests:
+          - unique
+          - not_null
+      - name: product_name
+        description: Nome do produto.
+        tests:
+          - not_null
+      - name: product_number
+        description: Número de referência do produto.
+        tests:
+          - not_null
+
+  - name: dim_credit_card
+    description: Dimensão de cartões de crédito utilizados nas vendas.
+    columns:
+      - name: pk_credit_card
+        description: Chave primária da dimensão cartão de crédito.
+        tests:
+          - unique
+          - not_null
+      - name: card_type
+        description: Tipo do cartão de crédito (ex. Visa, MasterCard).
+        tests:
+          - not_null
+
+  - name: dim_location
+    description: Dimensão de localização enriquecida com endereço, estado, país e território.
+    columns:
+      - name: pk_location
+        description: Chave primária da dimensão localização (address_id).
+        tests:
+          - unique
+          - not_null
+      - name: fk_territory
+        description: Chave estrangeira para o território de vendas.
+        tests:
+          - not_null
+      - name: city
+        description: Cidade do endereço.
+        tests:
+          - not_null
+      - name: state_province_code
+        description: Código do estado ou província.
+      - name: state_province_name
+        description: Nome do estado ou província.
+      - name: country_region_code
+        description: Código do país ou região.
+      - name: country_region_name
+        description: Nome do país ou região.
+      - name: territory_group
+        description: Grupo do território de vendas (ex. North America, Europe).
+
+  - name: dim_date
+    description: Dimensão de datas gerada via date spine, cobrindo 2000-01-01 a 2050-12-31.
+    columns:
+      - name: pk_date
+        description: Chave primária da dimensão data (número sequencial).
+        tests:
+          - unique
+          - not_null
+      - name: year
+        description: Ano da data.
+        tests:
+          - not_null
+      - name: month
+        description: Mês da data (1-12).
+        tests:
+          - not_null
+      - name: day
+        description: Dia do mês (1-31).
+        tests:
+          - not_null
+      - name: quarter
+        description: Trimestre da data (1-4).
+        tests:
+          - not_null
+      - name: full_date
+        description: Data formatada como yyyy-mm-dd.
+        tests:
+          - unique
+          - not_null
+      - name: day_of_week
+        description: Dia da semana (0=Domingo, 6=Sábado).
+      - name: is_weekend
+        description: Indicador booleano se o dia é fim de semana.
+
+  - name: dim_sales_reason
+    description: Dimensão bridge que relaciona pedidos de venda aos seus motivos de compra.
+    columns:
+      - name: pk_sales_reason
+        description: Chave primária composta (sales_order_id + sales_reason_id).
+        tests:
+          - unique
+          - not_null
+      - name: fk_sales_order
+        description: Chave estrangeira para a fato de pedidos de venda.
+        tests:
+          - not_null
+      - name: fk_sales_reason
+        description: Chave estrangeira para o motivo de venda.
+        tests:
+          - not_null
+      - name: sales_reason_name
+        description: Nome do motivo da venda.
+        tests:
+          - not_null
+      - name: sales_reason_type
+        description: Tipo do motivo da venda.
+
+  - name: fct_sales_order
+    description: >
+      Tabela fato central de pedidos de venda no nível de linha de detalhe (sales_order_detail_id).
+      Contém métricas de receita e chaves estrangeiras para todas as dimensões.
+    columns:
+      - name: pk_sales_order
+        description: Chave primária da fato (sales_order_detail_id).
+        tests:
+          - unique
+          - not_null
+      - name: fk_product
+        description: Chave estrangeira para dim_product.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_product')
+              field: pk_product
+      - name: fk_customer
+        description: Chave estrangeira para dim_customer.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customer')
+              field: pk_customer
+      - name: fk_date
+        description: Chave estrangeira para dim_date.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: pk_date
+      - name: fk_location
+        description: Chave estrangeira para dim_location.
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_location')
+              field: pk_location
+      - name: fk_credit_card
+        description: Chave estrangeira para dim_credit_card. Preenchida com 'unknown' quando ausente.
+        tests:
+          - not_null
+      - name: sales_order_id
+        description: Identificador do pedido de venda (cabeçalho).
+        tests:
+          - not_null
+      - name: order_qty
+        description: Quantidade de itens pedidos.
+        tests:
+          - not_null
+      - name: unit_price
+        description: Preço unitário do produto no momento do pedido.
+        tests:
+          - not_null
+      - name: unit_price_discount
+        description: Percentual de desconto aplicado ao preço unitário (0 a 1).
+      - name: gross_revenue
+        description: Receita bruta (unit_price * order_qty).
+        tests:
+          - not_null
+      - name: revenue
+        description: Receita líquida após desconto (unit_price * order_qty * (1 - unit_price_discount)).
+        tests:
+          - not_null
+      - name: status
+        description: Status do pedido de venda.
+      - name: online_order_flag
+        description: Indicador booleano se o pedido foi realizado online.
