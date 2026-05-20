@@ -16,7 +16,7 @@ with
             , extract(month from date_day) as month
             , extract(day from date_day) as day
             , extract(quarter from date_day) as quarter
-            , to_char(date_day, 'yyyy-mm-dd') as full_date
+            , to_char(date_day, 'yyyy-MM-dd') as full_date
             , extract(dow from date_day) as day_of_week
             , case 
                 when extract(dow from date_day) in (0, 6) then true

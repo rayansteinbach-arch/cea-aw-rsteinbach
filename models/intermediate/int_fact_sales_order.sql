@@ -34,7 +34,7 @@ with
             dc.fk_customer,
             dd.fk_date,
             dl.fk_location,
-            coalesce(dcc.fk_credit_card, 'unknown') as fk_credit_card,
+            dcc.fk_credit_card as fk_credit_card,
             detail.sales_order_id,
             detail.order_qty,
             detail.unit_price,
