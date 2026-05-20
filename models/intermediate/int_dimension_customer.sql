@@ -11,7 +11,7 @@ with
 
     , customers_enriquecido as (
         select
-            c.customer_id,
+            c.customer_id as pk_customer,
             p.first_name,
             p.middle_name,
             p.last_name,

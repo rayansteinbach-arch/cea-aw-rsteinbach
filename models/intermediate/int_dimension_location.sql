@@ -21,13 +21,13 @@ with
 
     , address_enriquecido as (
         select
-            a.address_id,
+            a.address_id   as pk_location,
+            t.territory_id as fk_territory,
             a.city,
             st.state_province_code,
             st.state_province_name,
             cr.country_region_code,
             cr.country_region_name,
-            t.territory_id,
             t.territory_group
         from addresses a
         join states st

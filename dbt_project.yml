@@ -36,16 +36,22 @@ clean-targets:         # directories to be removed by `dbt clean`
 # using the `{{ config(...) }}` macro.
 
 models:
-  adventure_works:
+  fea_advendure_works:
     staging:
       +materialized: view
       +tags: 
-        - 'staging'
+        - 'stg'
         - 'adventure_works'
       +schema: staging
     intermediate:
       +materialized: view
+      +tags: 
+        - 'int'
+        - 'adventure_works'
       +schema: intermediate
     marts:
       +materialized: table
+      +tags: 
+        - 'marts'
+        - 'adventure_works'
       +schema: marts

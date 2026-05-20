@@ -11,8 +11,13 @@ with
 
     , sales_reason_enriquecido as (
         select
-            b.sales_order_id,
-            r.sales_reason_id,
+            concat_ws(
+                '_',
+                b.sales_order_id,
+                r.sales_reason_id
+            ) as pk_sales_reason,
+            b.sales_order_id    as fk_sales_order,
+            r.sales_reason_id   as fk_sales_reason,
             r.sales_reason_name,
             r.sales_reason_type
         from bridge b
